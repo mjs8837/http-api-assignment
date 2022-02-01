@@ -35,35 +35,37 @@
 
         switch(response.status) {
           case 200:
-            content.innerHTML = `<b>Success</b>`;
+            content.innerHTML += `<b>Success</b>`;
             break;
           case 400:
-            content.innerHTML = `<b>Bad Request</b>`;
+            content.innerHTML += `<b>Bad Request</b>`;
             break;
           case 401:
-            content.innerHTML = `<b>Unauthorized</b>`;
+            content.innerHTML += `<b>Unauthorized</b>`;
             break;
           case 403:
-            content.innerHTML = `<b>Forbidden</b>`;
+            content.innerHTML += `<b>Forbidden</b>`;
             break;
           case 404:
-            content.innerHTML = `<b>Not Found</b>`;
+            content.innerHTML += `<b>Not Found</b>`;
             break;
           case 500:
-            content.innerHTML = `<b>Internal Error</b>`;
+            content.innerHTML += `<b>Internal Error</b>`;
             break;
           case 501:
-            content.innerHTML = `<b>Status Code not Implemented By Client</b>`;
+            content.innerHTML += `<b>Status Code not Implemented By Client</b>`;
             break;
           default:
-            content.innerHTML = `<p>Status Code not Implemented By Client</p>`;
+            content.innerHTML += `<p>Status Code not Implemented By Client</p>`;
             break;
       }
     });
   };
 
-    const sendFetch = async (url) => {
-      
+    const sendFetch = async () => {
+      const url = document.querySelector("#page").value;
+      const acceptedType = document.querySelector("#type").value;
+
       const options = {
         method: 'GET',
         headers: {'Accept': acceptedType}
@@ -75,14 +77,12 @@
     };
     
     const init = () => {
-      const pageSelect = document.querySelector("#page");
-      const typeSelect = document.querySelector("#type");
       const sendButton = document.querySelector("#send");
 
-      const successJSON = () => sendFetch('/success', 'application/json');
-      const successXML = () => sendFetch('/success', 'text/xml');
+      // const successJSON = () => sendFetch(pageSelect, typeSelect);
+      // const successXML = () => sendFetch(pageSelect, typeSelect);
 
-      sendButton.addEventListener('click', successJSON);
+      sendButton.addEventListener('click', sendFetch);
     };
 
     window.onload = init;

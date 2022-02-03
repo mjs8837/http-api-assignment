@@ -27,7 +27,7 @@ const xmlCheck = (request, response, acceptedTypes, responseJSON, status, paramS
   }
 
   return dataRespond(request, response, responseJSON, status, 'application/json');
-}
+};
 
 const success = (request, response, acceptedTypes) => {
   const responseJSON = {
@@ -105,9 +105,9 @@ const notFound = (request, response, acceptedTypes) => {
     id: 'notFound',
   };
 
-  let notFound = false;
+  const notFoundParam = false;
 
-  return xmlCheck(request, response, acceptedTypes, responseJSON, 404, notFound);
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 404, notFoundParam);
 };
 
 module.exports = {

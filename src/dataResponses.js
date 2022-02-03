@@ -1,5 +1,3 @@
-// const fs = require('fs'); // pull in the file system module
-
 const dataRespond = (request, response, content, status, type) => {
   response.writeHead(status, { 'Content-Type': type });
 
@@ -11,20 +9,32 @@ const dataRespond = (request, response, content, status, type) => {
   response.end();
 };
 
+const xmlCheck = (request, response, acceptedTypes, responseJSON, status, paramStatus) => {
+  if (acceptedTypes[0] === 'text/xml') {
+    let responseXML = '<response>';
+    responseXML = `${responseXML}<message>${responseJSON.message}</message>`;
+    responseXML = `${responseXML}</response>`;
+
+    if (paramStatus === false) {
+      let newResponse = '<response>';
+      newResponse = `${newResponse}<message>${responseJSON.message}</message>`;
+      newResponse = `${newResponse}<id>${responseJSON.id}</id>`;
+      newResponse = `${newResponse}</response>`;
+      return dataRespond(request, response, newResponse, status, 'text/xml');
+    }
+
+    return dataRespond(request, response, responseXML, status, 'text/xml');
+  }
+
+  return dataRespond(request, response, responseJSON, status, 'application/json');
+}
+
 const success = (request, response, acceptedTypes) => {
   const responseJSON = {
     message: 'This is a successful response',
   };
 
-  if (acceptedTypes[0] === 'text/xml') {
-    let responseXML = '<response>';
-    responseXML = `${responseXML} <message>${responseJSON.message}</message>`;
-    responseXML = `${responseXML} </response>`;
-
-    return dataRespond(request, response, responseXML, 200, 'text/xml');
-  }
-
-  return dataRespond(request, response, responseJSON, 200, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 200);
 };
 
 const badRequest = (request, response, acceptedTypes, params) => {
@@ -32,14 +42,18 @@ const badRequest = (request, response, acceptedTypes, params) => {
     message: 'This request has the required parameters',
   };
 
+  let valid = true;
+
   if (!params.valid || params.valid !== 'true') {
+    valid = false;
+
     responseJSON.message = 'Missing valid query paramater set to true';
     responseJSON.id = 'badRequest';
 
-    return dataRespond(request, response, responseJSON, 400, 'application/json');
+    return xmlCheck(request, response, acceptedTypes, responseJSON, 400, valid);
   }
 
-  return dataRespond(request, response, responseJSON, 200, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 200, valid);
 };
 
 const unauthorized = (request, response, acceptedTypes, params) => {
@@ -47,71 +61,53 @@ const unauthorized = (request, response, acceptedTypes, params) => {
     message: 'This request has the required parameters',
   };
 
-  if (!params.loggedIn || params.loggedIn !== 'yes') {
-    responseJSON.message = 'Missing valid query paramater set to yes';
-    responseJSON.id = 'notLoggedIn';
+  let loggedIn = true;
 
-    return dataRespond(request, response, responseJSON, 401, 'application/json');
+  if (!params.loggedIn || params.loggedIn !== 'yes') {
+    loggedIn = false;
+
+    responseJSON.message = 'Missing loggedIn query paramater set to yes';
+    responseJSON.id = 'unauthorized';
+
+    return xmlCheck(request, response, acceptedTypes, responseJSON, 401, loggedIn);
   }
 
-  return dataRespond(request, response, responseJSON, 200, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 200, loggedIn);
 };
 
 const forbidden = (request, response, acceptedTypes) => {
   const responseJSON = {
-    message: 'This is a forbidden request',
+    message: 'You do not have access to this content',
   };
 
-  if (acceptedTypes[0] === 'text/xml') {
-    let responseXML = '<response>';
-    responseXML = `${responseXML} <message>${responseJSON.message}</message>`;
-    responseXML = `${responseXML} </response>`;
-
-    return dataRespond(request, response, responseXML, 403, 'text/xml');
-  }
-
-  return dataRespond(request, response, responseJSON, 403, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 403);
 };
 
 const internal = (request, response, acceptedTypes) => {
   const responseJSON = {
-    message: 'This is an internal error',
+    message: 'Internal server error. Something went wrong',
   };
 
-  if (acceptedTypes[0] === 'text/xml') {
-    let responseXML = '<response>';
-    responseXML = `${responseXML} <message>${responseJSON.message}</message>`;
-    responseXML = `${responseXML} </response>`;
-
-    return dataRespond(request, response, responseXML, 500, 'text/xml');
-  }
-
-  return dataRespond(request, response, responseJSON, 500, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 500);
 };
 
 const notImplemented = (request, response, acceptedTypes) => {
   const responseJSON = {
-    message: 'This is not implemented',
+    message: 'A get request for this page has not been implemented yet. Check again later for updated content',
   };
 
-  if (acceptedTypes[0] === 'text/xml') {
-    let responseXML = '<response>';
-    responseXML = `${responseXML} <message>${responseJSON.message}</message>`;
-    responseXML = `${responseXML} </response>`;
-
-    return dataRespond(request, response, responseXML, 501, 'text/xml');
-  }
-
-  return dataRespond(request, response, responseJSON, 501, 'application/json');
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 501);
 };
 
-const notFound = (request, response) => {
+const notFound = (request, response, acceptedTypes) => {
   const responseJSON = {
     message: 'The page you are looking for was not found.',
     id: 'notFound',
   };
 
-  dataRespond(request, response, responseJSON, 404, 'application/json');
+  let notFound = false;
+
+  return xmlCheck(request, response, acceptedTypes, responseJSON, 404, notFound);
 };
 
 module.exports = {

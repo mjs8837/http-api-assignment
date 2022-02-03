@@ -18,6 +18,7 @@ const urlStruct = {
   '/forbidden': dataHandler.forbidden,
   '/internal': dataHandler.internal,
   '/notImplemented': dataHandler.notImplemented,
+  '/notFound': dataHandler.notFound,
   notFound: dataHandler.notFound,
 };
 

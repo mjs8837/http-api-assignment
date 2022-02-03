@@ -12,53 +12,49 @@
         let contentType = response.headers.get('Content-Type');
         const content = document.getElementById('content');
 
-        content.appendChild(document.createElement('hr'));
-
         const h1 = document.createElement('h1');
-        const p = document.createElement('p');
-        const rawData = document.createElement('p');
-
-        h1.textContent = contentType;
-        rawData.textContent = resText;
-
-        if (contentType === 'application/json'){
-          let parsedResponse = JSON.parse(resText);
-          p.textContent = parsedResponse.message;
-        } else if (contentType === 'text/xml') {
-          let parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
-          p.textContent = parsedResponse.querySelector('message').textContent;
-        }
-
-        content.appendChild(h1);
-        content.appendChild(p);
-        content.appendChild(rawData);
 
         switch(response.status) {
           case 200:
-            content.innerHTML += `<b>Success</b>`;
+            h1.textContent = `Success`;
             break;
           case 400:
-            content.innerHTML += `<b>Bad Request</b>`;
+            h1.textContent = `Bad Request`;
             break;
           case 401:
-            content.innerHTML += `<b>Unauthorized</b>`;
+            h1.textContent = `Unauthorized`;
             break;
           case 403:
-            content.innerHTML += `<b>Forbidden</b>`;
+            h1.textContent = `Forbidden`;
             break;
           case 404:
-            content.innerHTML += `<b>Not Found</b>`;
+            h1.textContent = `Resource Not Found`;
             break;
           case 500:
-            content.innerHTML += `<b>Internal Error</b>`;
+            h1.textContent = `Internal Server Error`;
             break;
           case 501:
-            content.innerHTML += `<b>Status Code not Implemented By Client</b>`;
+            h1.textContent = `Not Implemented`;
             break;
           default:
-            content.innerHTML += `<p>Status Code not Implemented By Client</p>`;
+            h1.textContent = `Resource Not Found`;
             break;
       }
+
+      const p = document.createElement('p');
+
+      if (contentType === 'application/json'){
+        let parsedResponse = JSON.parse(resText);
+        p.textContent = 'Message: ' + parsedResponse.message;
+      } else if (contentType === 'text/xml') {
+        let parsedResponse = new window.DOMParser().parseFromString(resText, 'text/xml');
+        p.textContent = 'Message: ' + parsedResponse.querySelector('message').textContent;
+      }
+
+      content.appendChild(h1);
+      content.appendChild(p);
+
+      console.dir(resText);
     });
   };
 
